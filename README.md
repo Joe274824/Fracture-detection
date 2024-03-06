@@ -1,17 +1,9 @@
-# Data Description
+conda activate conda-env
 
-**16-02-2024**
+python3 src/main.py
 
-Complete dataset delivered @AIML to student. Previous batch from december is completely in the new dataset so no need for copying.
+The idea was to map the 8 corners of a crop box to the 8 corners of a new matrix using a affine transformation. 
 
-Dataset consists of folders:
-
-1. Trainingset: batch_1_fmc; batch_1_sami; batch_2_fmc; batch_2_sami; ctxr.
-2. Testset: batch_1_sami_test; batch_2_fmc_test; batch_2_sami_test; ctxr_test.
-3. external validation set: olvg; umcg.
-
-**19-02-2024**
-
-All classification data and distribution of dataset in [Excel](https://onedrive.live.com/edit?id=C1552A6F51EC5DE7!1426&resid=C1552A6F51EC5DE7!1426&ithint=file%2cxlsx&authkey=!Au9jcDlK3_sq60U&wdo=2&cid=c1552a6f51ec5de7) file.
-
-2 missing scans in trainingset sent to Zhibin through box: batch_1_sami_0451; batch_2_fmc_102755.
+Classes were coded to load the 3d images and file data from the folders. 
+Additionally, the get corners function gets the 8 corners of the crop box and the same method is used to get the 8 corners of the output 3d image to ensure consistency
+the get affine transformation from points should produce the correct output but i couldn't get the affine transformation to produce a non-black image
