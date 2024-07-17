@@ -2,7 +2,7 @@
 import os
 import sys
 
-ANNOTATIONS_DIRS = ["data/nymke/RAH_annotations"]
+ANNOTATIONS_DIRS = ["E:\\Download\\nymke\\RAH_annotations"]
 
 def getAnnotationDirs():
     """
@@ -39,7 +39,19 @@ def getNrrdPath(annotationDir):
         return nrrdPaths[0]
     
     print(f"Expected one nrrd file in {annotationDir}, but found {len(nrrdPaths)}")
-    sys.exit(1)
+    return set()
+
+def getNiftiPath(annotationDir):
+    """
+    Get the .nii.gz file path in the given annotation directory.
+    """
+    niftiPaths = [f.path for f in os.scandir(annotationDir) if f.is_file() and f.name.endswith('.nii.gz')]
+
+    if len(niftiPaths) == 1:
+        return niftiPaths[0]
+
+    print(f"Expected one .nii.gz file in {annotationDir}, but found {len(niftiPaths)}")
+    return set()
 
 if __name__ == "__main__":
     paths = getAnnotationDirs()

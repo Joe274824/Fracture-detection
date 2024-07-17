@@ -33,7 +33,7 @@ class JsonFileWrapper:
     
 if __name__ == "__main__":
     print("JsonFileWrapper module")
-    jsonFile = JsonFileWrapper('data/nymke/Annotaties/Flinders_1_annotation/l_healthy.json')
+    jsonFile = JsonFileWrapper('E:/Download/nymke/Annotaties/Flinders_1_annotation/l_healthy.json')
 
     print("center of the box: ", jsonFile.getBoxCenter())
     print("size of the box: ", jsonFile.getBoxSize())
