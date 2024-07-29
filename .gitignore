@@ -478,3 +478,13 @@ visualisation/healthy/img104-r_healthy.nii
 visualisation/test/img0-l_fracture.nii
 corrected_red_cube.nii
 random_oriented_red_cube.nii
+visualisation/nymke/fracture/img0-r_fracture.nii
+visualisation/nymke/fracture/img1-l_fracture.nii
+visualisation/nymke/fracture/img3-l_fracture.nii
+visualisation/nymke/fracture/img4-l_fracture.nii
+visualisation/nymke/fracture/img5-l_fracture.nii
+visualisation/nymke/healthy/img0-l_healthy.nii
+visualisation/nymke/healthy/img1-r_healthy.nii
+visualisation/nymke/healthy/img3-r_healthy.nii
+visualisation/nymke/healthy/img4-r_healthy.nii
+visualisation/nymke/healthy/img5-r_healthy.nii

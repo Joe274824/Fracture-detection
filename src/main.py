@@ -9,14 +9,14 @@ import nibabel as nib
 annotationDirs = getAnnotationDirs()
 
 def rotate_point(point, center, rotation_matrix):
-    # 将列表转换为NumPy数组
+    
     point = np.array(point)
     center = np.array(center)
-    # 将点转移到旋转中心
+    
     point_centered = point - center
-    # 应用旋转矩阵
+    
     point_rotated = np.dot(rotation_matrix, point_centered.T).T
-    # 恢复原来的中心位置
+    
     point_final = point_rotated + center
     return point_final
 
@@ -33,9 +33,9 @@ def calculateVoxelSpacings(voxelDirections):
     voxelSpacings = [np.linalg.norm(voxelDirections[:, i]) for i in range(3)]
     column_signs = []
     for i in range(3):
-        # 找到每个方向向量中绝对值最大的分量
+        # find the component with the largest absolute value in each direction vector
         dominant_component = np.argmax(np.abs(voxelDirections[:, i]))
-        # 使用该分量的符号作为整个方向向量的符号
+        # use the sign of that component as the sign of the entire direction vector
         sign = np.sign(voxelDirections[dominant_component, i])
         column_signs.append(sign)
     voxelSpacings = np.array(voxelSpacings) * column_signs
@@ -104,7 +104,7 @@ for index, annotation in enumerate(annotationDirs):
         img_center = np.array(img.shape) / 2
         affine_inv = np.linalg.inv(orientation_matrix)
         print(f"affine_inv: \n{affine_inv}")
-        # 计算盒子的八个角点
+        # calculate the corner points of the box
         corners = getCorners(center, orientation_matrix, size)
         
         print("Corner Points:\n", corners)
@@ -120,7 +120,7 @@ for index, annotation in enumerate(annotationDirs):
         print(f"new_space_direction:{new_space_direction}")
         new_voxelSpacings = calculateVoxelSpacings(new_space_direction)
         # new_voxelSpacings[2] *= -1
-        # print(f"new_voxelSpacings:{new_voxelSpacings}")
+        print(f"new_voxelSpacings:{new_voxelSpacings}")
 
         new_center_rotate_point = voxel_to_physical(new_center_rotate_point, original_origin, new_voxelSpacings)
         # print(f"new_center_rotate_point: {new_center_rotate_point}")
@@ -142,17 +142,23 @@ for index, annotation in enumerate(annotationDirs):
 
         box_img = rotated_img[min_index[0]:max_index[0], min_index[1]:max_index[1], min_index[2]:max_index[2]]
 
-        # 创建新的仿射矩阵用于NIfTI保存
-        q, r = np.linalg.qr(new_space_direction)
-        new_space_direction_matrix = q * np.sign(np.diag(r))
+        # create a new affine matrix for NIfTI saving
+        u, _, vh = np.linalg.svd(new_space_direction, full_matrices=False)
+        orthogonalized_directions = np.dot(u, vh)
+        new_voxel_spacings = calculateVoxelSpacings(orthogonalized_directions)
+        
+        # adjust the orthogonalized directions to match the original voxel spacings
+        adjusted_directions = orthogonalized_directions * np.array(voxelSpacings) / np.array(new_voxel_spacings)
 
+        print("Adjusted space directions:\n", adjusted_directions)
+        print("New voxel spacings:", calculateVoxelSpacings(adjusted_directions))
         affine = np.eye(4)
-        affine[:3, :3] = new_space_direction_matrix
+        affine[:3, :3] = adjusted_directions
         # affine[:3, 3] = original_origin
 
         nifti_image = nib.Nifti1Image(box_img, affine)
         print(f"box_img shape: {box_img.shape}")
-        # 保存NIfTI图像到文件
+        # save the NIfTI image to file
         if("fracture" in filename):
             nifti_image.to_filename(f"visualisation/fracture/img{index}-{filename}.nii")
         else:
