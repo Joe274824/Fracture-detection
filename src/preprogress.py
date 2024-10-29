@@ -30,6 +30,7 @@ def calculateVoxelSpacings(voxelDirections):
     Returns:
     - list: Voxel spacings.
     """
+    voxelDirections = np.array(voxelDirections)
     voxelSpacings = [np.linalg.norm(voxelDirections[:, i]) for i in range(3)]
     column_signs = []
     for i in range(3):
@@ -87,47 +88,34 @@ for index, annotation in enumerate(annotationDirs):
 
     for jsonFile in json:
         filename = os.path.basename(jsonFile.getName())
-        print(f"Processing {index}-{filename}: ")
+        last_name = os.path.basename(annotation)
+        print(f"Processing {last_name}-{filename}: ")
         center = jsonFile.getBoxCenter()
-        # center[1] *= -1
         print(f"Center: {center}")
         size = jsonFile.getBoxSize()
         orientation_matrix = np.reshape(jsonFile.getBoxOrientation(), (3, 3))
-        # print(orientation_matrix)
         original_origin = np.array(imgHead['space origin'])
-        # original_origin[1] *= -1
-        print(f"original_origin: {original_origin}")
         voxelDirections = imgHead['space directions']
-        print(f"voxelDirections:\n{voxelDirections}")
         voxelSpacings = calculateVoxelSpacings(voxelDirections)
-        print(f"voxelSpacings:{voxelSpacings}")
         img_center = np.array(img.shape) / 2
         affine_inv = np.linalg.inv(orientation_matrix)
-        print(f"affine_inv: \n{affine_inv}")
+
         # calculate the corner points of the box
         corners = getCorners(center, orientation_matrix, size)
         
-        print("Corner Points:\n", corners)
         center_voxel = physical_to_voxel(center, original_origin, voxelSpacings)
 
         new_center_rotate_point = rotate_point(center_voxel, img_center, affine_inv)
 
         offset = np.dot(affine_inv, -img_center.T).T + img_center
-        # print(f"offset:{offset}")
         rotated_img = affine_transform(img.astype(np.float32), affine_inv, offset=offset, order=3)
 
         new_space_direction = np.dot(voxelDirections, affine_inv)
-        print(f"new_space_direction:{new_space_direction}")
         new_voxelSpacings = calculateVoxelSpacings(new_space_direction)
-        # new_voxelSpacings[2] *= -1
-        print(f"new_voxelSpacings:{new_voxelSpacings}")
 
         new_center_rotate_point = voxel_to_physical(new_center_rotate_point, original_origin, new_voxelSpacings)
-        # print(f"new_center_rotate_point: {new_center_rotate_point}")
         new_corners = getCorners(new_center_rotate_point, np.eye(3), size)
-        print("New Corners:\n", new_corners)
         new_corners_voxel = np.array([physical_to_voxel(corner, original_origin, new_voxelSpacings) for corner in new_corners])
-        print("New Corners in Voxel Space:\n", new_corners_voxel)
 
         min_index = np.floor(np.array(new_corners_voxel.min(axis=0))).astype(int)
         max_index = np.ceil(np.array(new_corners_voxel.max(axis=0))).astype(int)
@@ -150,7 +138,6 @@ for index, annotation in enumerate(annotationDirs):
         # adjust the orthogonalized directions to match the original voxel spacings
         adjusted_directions = orthogonalized_directions * np.array(voxelSpacings) / np.array(new_voxel_spacings)
 
-        print("Adjusted space directions:\n", adjusted_directions)
         print("New voxel spacings:", calculateVoxelSpacings(adjusted_directions))
         affine = np.eye(4)
         affine[:3, :3] = adjusted_directions
@@ -160,8 +147,8 @@ for index, annotation in enumerate(annotationDirs):
         print(f"box_img shape: {box_img.shape}")
         # save the NIfTI image to file
         if("fracture" in filename):
-            nifti_image.to_filename(f"visualisation/fracture/img{index}-{filename}.nii")
+            nifti_image.to_filename(f"D://UOA/Research Project/Research Project/fracture/img{last_name}-{filename}.nii")
         else:
-            nifti_image.to_filename(f"visualisation/healthy/img{index}-{filename}.nii")
+            nifti_image.to_filename(f"D://UOA/Research Project/Research Project/healthy/img{last_name}-{filename}.nii")
         print("=====================================")
 sys.exit(0)

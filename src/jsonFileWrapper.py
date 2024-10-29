@@ -1,5 +1,11 @@
 import json
+import chardet
 
+def detect_encoding(file_path):
+    with open(file_path, 'rb') as file:
+        raw_data = file.read()
+    result = chardet.detect(raw_data)
+    return result['encoding']
 
 class JsonFileWrapper:
     def __init__(self, filePath):
@@ -10,6 +16,14 @@ class JsonFileWrapper:
         with open(filePath, 'r') as file:
             self.data = json.load(file)
 
+    def load_json_file(file_path):
+        encoding = detect_encoding(file_path)
+        with open(file_path, 'r', encoding=encoding) as file:
+            content = file.read()
+            if not content.strip():  
+                raise ValueError(f"File {file_path} is empty or contains only whitespace")
+            return json.loads(content)
+        
     def getName(self):
         return self.name.split('.')[0]
 
