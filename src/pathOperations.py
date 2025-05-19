@@ -2,7 +2,7 @@
 import os
 import sys
 
-ANNOTATIONS_DIRS = ["E:\\Download\\nymke\\RAH_annotations"]
+ANNOTATIONS_DIRS = ["E:\\Download\\Fracture_clssify_CT\\123"]
 
 def getAnnotationDirs():
     """

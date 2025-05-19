@@ -7,13 +7,16 @@ import matplotlib.pyplot as plt
 from sklearn.metrics import confusion_matrix, ConfusionMatrixDisplay
 from scipy.ndimage import zoom
 from mayavi import mlab 
+from keras import backend as K
+
+tf.keras.mixed_precision.set_global_policy('float32')
+K.set_floatx('float32')
 
 # 加载模型
 model = tf.keras.models.load_model('3d_densenet_model.h5')
-model.summary()
-# 打印模型层信息
 for layer in model.layers:
-    print(layer.name, layer.output_shape)
+    if layer.dtype == 'float16':
+        layer._dtype_policy = tf.keras.mixed_precision.Policy('float32')
 # 目标尺寸
 TARGET_SHAPE = (128, 128, 128)
 
@@ -61,6 +64,7 @@ def evaluate_model(folder, batch_size):
     y_pred = []
     filenames = []
     for images_batch, labels_batch, batch_filenames in load_nifti_images_from_folder(folder, batch_size):
+        images_batch = images_batch.astype(np.float32)
         predictions = model.predict(images_batch)
         predicted_classes = np.argmax(predictions, axis=1)
 
@@ -113,7 +117,7 @@ def overlay_grad_cam(image, heatmap, alpha=0.4):
     return overlay
 
 # 进行评估
-folder_path = 'E://Research Project/Hip preprocessed Data/external val'  # NIfTI文件的路径
+folder_path = 'E://UOA/2024-s1/Research project/repo/shoulder_ct/visualisation/fracture'  # NIfTI文件的路径
 y_true, y_pred, filenames = evaluate_model(folder_path, batch_size=32)  # 选择适合的batch_size
 
 # calculate confusion matrix
@@ -151,7 +155,7 @@ def visualize_3d_cam(image, heatmap, alpha=0.4):
 
 # 计算并可视化 Grad-CAM
 for i in range(len(filenames)):
-    if y_pred[i] != y_true[i]:  # 仅针对错误分类进行可视化
+    if y_pred[i] != y_true[i]:  
         image_path = os.path.join(folder_path, filenames[i])
         image = nib.load(image_path).get_fdata()
         image = resize_image(image, TARGET_SHAPE)
