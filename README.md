@@ -1,9 +1,18 @@
-conda activate conda-env
+# Fracture Detection using 3D CT Images
 
-python3 src/main.py
+This project focuses on automatic detection of fractures from 3D CT scans using deep learning. It was developed as part of a research project at the University of Adelaide.
 
-The idea was to map the 8 corners of a crop box to the 8 corners of a new matrix using a affine transformation. 
+## 📌 Project Overview
 
-Classes were coded to load the 3d images and file data from the folders. 
-Additionally, the get corners function gets the 8 corners of the crop box and the same method is used to get the 8 corners of the output 3d image to ensure consistency
-the get affine transformation from points should produce the correct output but i couldn't get the affine transformation to produce a non-black image
+- **Task**: Binary classification — Fractured vs. Healthy
+- **Model**: 3D DenseNet
+- **Data**: CT scan volumes in NIfTI format (`.nii`)
+- **Goal**: Assist radiologists with accurate and efficient fracture identification
+
+## 🧠 Key Features
+
+- 3D DenseNet-based classifier
+- Mixed precision training with GPU acceleration
+- Support for large-scale NIfTI image processing
+- Grad-CAM visualization for interpretability
+- External validation with unseen data
